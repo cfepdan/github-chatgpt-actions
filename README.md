@@ -72,7 +72,12 @@ Follow this guide to set up and test the integration.
 ![Full Setup](./screenshots/customGPTSetup.png)
 
 - **Testing Flow**:
+Before authentication:
 ![Testing Flow](./screenshots/testing.png)
+
+After authentication:
+![Testing Flow](./screenshots/testing.png)
+
 
 ---
 
