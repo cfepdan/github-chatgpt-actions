@@ -1,0 +1,1310 @@
+openapi: 3.1.0
+info:
+  title: GitHub API Integration
+  description: Comprehensive API specification for accessing GitHub data with `repo`
+    and `read:user` scopes.
+  version: 1.8.0
+servers:
+- url: https://api.github.com
+paths:
+  /repos/{owner}/{repo}/branches:
+    get:
+      operationId: listRepoBranches
+      summary: List branches in a repository
+      description: Retrieve a list of branches in the specified repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Branch'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/branches/{branch}:
+    get:
+      operationId: getBranchDetails
+      summary: Get details of a branch
+      description: Retrieve details of a specific branch in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: branch
+        in: path
+        required: true
+        description: The branch name.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Branch details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '404':
+          description: Branch not found.
+  /repos/{owner}/{repo}/collaborators:
+    get:
+      operationId: listRepoCollaborators
+      summary: List collaborators in a repository
+      description: Retrieve a list of collaborators for the specified repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of collaborators
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/commits:
+    get:
+      operationId: listRepoCommits
+      summary: List commits in a repository
+      description: Retrieve a list of commits in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: sha
+        in: query
+        required: false
+        description: SHA or branch to start listing commits from.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of commits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commit'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/commits/{ref}:
+    get:
+      operationId: getCommitDetails
+      summary: Get details of a specific commit
+      description: Retrieve information about a specific commit in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: ref
+        in: path
+        required: true
+        description: The SHA, branch, or tag.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Commit details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+        '404':
+          description: Commit not found.
+  /repos/{owner}/{repo}/commits/{ref}/status:
+    get:
+      operationId: getCommitStatus
+      summary: Get commit statuses
+      description: Retrieve the statuses of a specific commit in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: ref
+        in: path
+        required: true
+        description: SHA, branch, or tag for which to retrieve the commit statuses.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Commit statuses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    description: The overall state of the commit (e.g., success, pending,
+                      failure).
+                  statuses:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        context:
+                          type: string
+                          description: The status context (e.g., CI/CD service).
+                        description:
+                          type: string
+                          description: A short description of the status.
+                        state:
+                          type: string
+                          description: The state of the status (e.g., success, pending,
+                            failure).
+        '404':
+          description: Commit or statuses not found.
+  /repos/{owner}/{repo}/contents:
+    get:
+      operationId: getRepoContentsRoot
+      summary: Get contents of the repository's root
+      description: Retrieve the file and directory structure at the root of the repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: ref
+        in: query
+        required: false
+        description: Branch, tag, or commit to retrieve the contents from. Defaults
+          to the default branch.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Repository root contents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RepoContents'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/contents/{path}:
+    get:
+      operationId: getRepoContentsPath
+      summary: Get contents of a specific file or directory
+      description: Retrieve the file or directory contents at a specific path in a
+        repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: path
+        in: path
+        required: true
+        description: The file or directory path within the repository.
+        schema:
+          type: string
+      - name: ref
+        in: query
+        required: false
+        description: Branch, tag, or commit SHA to retrieve the contents from. Defaults
+          to the default branch.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: File or directory contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepoContents'
+        '404':
+          description: File or directory not found.
+  /repos/{owner}/{repo}/hooks:
+    get:
+      operationId: listRepoWebhooks
+      summary: List webhooks for a repository
+      description: Retrieve the webhooks configured for a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Webhook'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/issues:
+    get:
+      operationId: getRepoIssues
+      summary: List repository issues
+      description: Retrieve issues within a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        description: Filter by issue state (open, closed, all).
+        schema:
+          type: string
+          enum:
+          - open
+          - closed
+          - all
+          default: open
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of issues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/issues/comments:
+    get:
+      operationId: getIssueComments
+      summary: List issue comments for a repository
+      description: Retrieve all issue comments within a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of issue comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/issues/{issue_number}:
+    get:
+      operationId: getIssueDetails
+      summary: Get a specific issue
+      description: Retrieve details about a specific issue in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: issue_number
+        in: path
+        required: true
+        description: The issue number.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Issue details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '404':
+          description: Issue not found.
+  /repos/{owner}/{repo}/keys:
+    get:
+      operationId: listRepoDeployKeys
+      summary: List deploy keys in a repository
+      description: Retrieve a list of deploy keys in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of deploy keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeployKey'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/pulls:
+    get:
+      operationId: listRepoPulls
+      summary: List pull requests in a repository
+      description: Retrieve a list of pull requests in the specified repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        description: Filter pull requests by state (open, closed, all).
+        schema:
+          type: string
+          enum:
+          - open
+          - closed
+          - all
+          default: open
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of pull requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PullRequest'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/pulls/{pull_number}:
+    get:
+      operationId: getPullRequest
+      summary: Get a specific pull request
+      description: Retrieve details of a specific pull request in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: pull_number
+        in: path
+        required: true
+        description: The pull request number.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Pull request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PullRequest'
+        '404':
+          description: Pull request not found.
+  /repos/{owner}/{repo}/pulls/{pull_number}/reviews:
+    get:
+      operationId: getPullRequestReviews
+      summary: List reviews for a pull request
+      description: Retrieve reviews for a specific pull request in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: pull_number
+        in: path
+        required: true
+        description: The pull request number.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: List of pull request reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '404':
+          description: Pull request not found.
+  /repos/{owner}/{repo}/readme:
+    get:
+      operationId: getRepoReadme
+      summary: Get repository README
+      description: Retrieve the README file from a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: ref
+        in: query
+        required: false
+        description: The name of the commit/branch/tag. Defaults to the default branch.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Repository README content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepoContents'
+        '404':
+          description: README not found.
+  /repos/{owner}/{repo}/releases:
+    get:
+      operationId: listRepoReleases
+      summary: List releases in a repository
+      description: Retrieve a list of releases in a repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of releases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Release'
+        '404':
+          description: Repository not found.
+  /repos/{owner}/{repo}/tags:
+    get:
+      operationId: listRepoTags
+      summary: List tags in a repository
+      description: Retrieve a list of tags in the specified repository.
+      parameters:
+      - name: owner
+        in: path
+        required: true
+        description: Owner of the repository.
+        schema:
+          type: string
+      - name: repo
+        in: path
+        required: true
+        description: Name of the repository.
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '404':
+          description: Repository not found.
+  /user:
+    get:
+      operationId: getAuthenticatedUser
+      summary: Get authenticated user
+      description: Retrieve details about the authenticated user based on the provided
+        token.
+      responses:
+        '200':
+          description: Authenticated user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+  /user/emails:
+    get:
+      operationId: getUserEmails
+      summary: List email addresses for the authenticated user
+      description: Retrieve the email addresses associated with the authenticated
+        user's account.
+      responses:
+        '200':
+          description: List of email addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: The email address.
+                    primary:
+                      type: boolean
+                      description: Whether this is the primary email address.
+                    verified:
+                      type: boolean
+                      description: Whether this email has been verified.
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+  /user/followers:
+    get:
+      operationId: getUserFollowers
+      summary: List followers of the authenticated user
+      description: Retrieve the followers of the authenticated user.
+      parameters:
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of followers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+  /user/following:
+    get:
+      operationId: getUserFollowing
+      summary: List users followed by the authenticated user
+      description: Retrieve the list of users that the authenticated user is following.
+      parameters:
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of users being followed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+  /user/orgs:
+    get:
+      operationId: getUserOrgs
+      summary: List organizations for the authenticated user
+      description: Retrieve the organizations the authenticated user belongs to.
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organization'
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+  /user/repos:
+    get:
+      operationId: getUserRepositories
+      summary: List repositories for the authenticated user
+      description: Retrieve repositories owned by the authenticated user.
+      parameters:
+      - name: visibility
+        in: query
+        required: false
+        description: Filter repositories by visibility (all, public, or private).
+        schema:
+          type: string
+          enum:
+          - all
+          - public
+          - private
+          default: all
+      - name: affiliation
+        in: query
+        required: false
+        description: Filter repositories by affiliation (owner, collaborator, organization_member).
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Number of results per page (max 100).
+        schema:
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: Page number of results to fetch.
+        schema:
+          type: integer
+          default: 1
+      responses:
+        '200':
+          description: List of repositories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Repository'
+        '401':
+          description: Unauthorized. The access token is missing or invalid.
+  /users/{username}:
+    get:
+      operationId: getUserDetails
+      summary: Get user details
+      description: Retrieve public details about a specific GitHub user.
+      parameters:
+      - name: username
+        in: path
+        required: true
+        description: The username of the GitHub user.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found.
+components:
+  schemas:
+    Branch:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the branch.
+        commit:
+          type: object
+          properties:
+            sha:
+              type: string
+              description: The commit SHA associated with the branch.
+            url:
+              type: string
+              description: The API URL for the commit.
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Comment ID.
+        body:
+          type: string
+          description: The content of the comment.
+        user:
+          $ref: '#/components/schemas/User'
+    Commit:
+      type: object
+      properties:
+        sha:
+          type: string
+          description: The SHA of the commit.
+        message:
+          type: string
+          description: The commit message.
+        author:
+          $ref: '#/components/schemas/User'
+        committer:
+          $ref: '#/components/schemas/User'
+        parents:
+          type: array
+          items:
+            type: object
+            properties:
+              sha:
+                type: string
+                description: The SHA of the parent commit.
+    DeployKey:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the deploy key.
+        key:
+          type: string
+          description: The public key.
+        title:
+          type: string
+          description: The title of the deploy key.
+        read_only:
+          type: boolean
+          description: Whether the key is read-only.
+    Issue:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Title of the issue.
+        number:
+          type: integer
+          description: Issue number.
+        state:
+          type: string
+          description: Issue state (open, closed).
+    Organization:
+      type: object
+      properties:
+        login:
+          type: string
+          description: The organization's GitHub username.
+        id:
+          type: integer
+          description: Unique identifier of the organization.
+        url:
+          type: string
+          description: API URL for the organization.
+        description:
+          type: string
+          description: Description of the organization.
+        avatar_url:
+          type: string
+          description: URL of the organization's avatar.
+        html_url:
+          type: string
+          description: Web URL of the organization's profile.
+        public_repos:
+          type: integer
+          description: Number of public repositories owned by the organization.
+        public_gists:
+          type: integer
+          description: Number of public gists owned by the organization.
+        followers:
+          type: integer
+          description: Number of followers of the organization.
+        following:
+          type: integer
+          description: Number of users the organization is following.
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time when the organization was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: Date and time when the organization was last updated.
+    PullRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Pull request ID.
+        number:
+          type: integer
+          description: Pull request number.
+        state:
+          type: string
+          description: Pull request state (open, closed, merged).
+        title:
+          type: string
+          description: Title of the pull request.
+    Release:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Release ID.
+        tag_name:
+          type: string
+          description: The tag name of the release.
+        name:
+          type: string
+          description: Name of the release.
+        body:
+          type: string
+          description: Description or body of the release.
+        draft:
+          type: boolean
+          description: Whether the release is a draft.
+        prerelease:
+          type: boolean
+          description: Whether the release is a pre-release.
+    RepoContents:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of content (file, directory, symlink, submodule).
+        size:
+          type: integer
+          description: The size of the content in bytes.
+        name:
+          type: string
+          description: The name of the file or directory.
+        path:
+          type: string
+          description: The full path of the content.
+    Repository:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the repository.
+        name:
+          type: string
+          description: Name of the repository.
+        full_name:
+          type: string
+          description: Full name of the repository (e.g., `owner/repo`).
+        private:
+          type: boolean
+          description: Whether the repository is private.
+        owner:
+          $ref: '#/components/schemas/User'
+        html_url:
+          type: string
+          description: Web URL of the repository.
+        description:
+          type: string
+          description: Description of the repository.
+        fork:
+          type: boolean
+          description: Whether the repository is a fork of another repository.
+        url:
+          type: string
+          description: API URL of the repository.
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time when the repository was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: Date and time when the repository was last updated.
+        pushed_at:
+          type: string
+          format: date-time
+          description: Date and time when the repository was last pushed to.
+        language:
+          type: string
+          description: Primary programming language of the repository.
+        forks_count:
+          type: integer
+          description: Number of forks of the repository.
+        stargazers_count:
+          type: integer
+          description: Number of stars the repository has received.
+        watchers_count:
+          type: integer
+          description: Number of watchers of the repository.
+        size:
+          type: integer
+          description: Size of the repository in kilobytes.
+        open_issues_count:
+          type: integer
+          description: Number of open issues in the repository.
+        default_branch:
+          type: string
+          description: Default branch of the repository.
+        topics:
+          type: array
+          items:
+            type: string
+          description: List of topics associated with the repository.
+        permissions:
+          type: object
+          properties:
+            admin:
+              type: boolean
+              description: Whether the authenticated user has admin permissions.
+            push:
+              type: boolean
+              description: Whether the authenticated user has push permissions.
+            pull:
+              type: boolean
+              description: Whether the authenticated user has pull permissions.
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Review ID.
+        user:
+          $ref: '#/components/schemas/User'
+        body:
+          type: string
+          description: The body of the review.
+    Tag:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the tag.
+        commit:
+          type: object
+          properties:
+            sha:
+              type: string
+              description: The commit SHA associated with the tag.
+            url:
+              type: string
+              description: The API URL for the commit.
+        zipball_url:
+          type: string
+          description: The URL to download the tag as a zipball.
+        tarball_url:
+          type: string
+          description: The URL to download the tag as a tarball.
+    User:
+      type: object
+      properties:
+        login:
+          type: string
+          description: GitHub username.
+        id:
+          type: integer
+          description: User ID.
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Webhook ID.
+        url:
+          type: string
+          description: API URL for the webhook.
+        name:
+          type: string
+          description: The name of the webhook.
+        events:
+          type: array
+          items:
+            type: string
+          description: Events that trigger the webhook.
+        config:
+          type: object
+          properties:
+            url:
+              type: string
+              description: The configured URL for the webhook.
+            content_type:
+              type: string
+              description: Content type of the webhook payload.
